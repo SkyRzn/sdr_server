@@ -14,7 +14,8 @@
 	} while (0)
 #define dbg_mem_exit() dbg_exit("Memory allocation error\n")
 
-extern void dbg_(const char *file, const char *func, int line, const char *fmt, ...);
+extern void dbg_(const char *file, const char *func, int line, const char *fmt, ...)
+	__attribute__((format(printf, 4, 5)));
 
 
 #endif
