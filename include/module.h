@@ -8,7 +8,8 @@
 typedef struct {
 	char *name;
 	const char *description;
-	int (*handler)(char *data, int count, void *instance);
+	int (*handler)(void *data, int count, void *instance);
+	const char **settings_fileds;
 } module_t;
 
 typedef struct module_instance {
@@ -27,7 +28,8 @@ typedef struct module_instance {
 #define STR(x) STR_(x)
 #define MODULE_PREFIX_STRING STR(MODULE_PREFIX)
 
-#define ADD_MODULE(module, name) module_t *MODULE_VARIABLE(name) = &module
+#define ADD_MODULE(name_, description_, handler_, settings_fileds_) \
+	module_t MODULE_VARIABLE(name_) = {STR(name_), description_, handler_, settings_fileds_}
 
 
 extern module_t *get_module(void *dlhandle, const char *name);
