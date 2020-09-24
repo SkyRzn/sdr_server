@@ -16,16 +16,29 @@ typedef enum { // TODO move to connector.c?
 typedef struct config_iterator {
 	const char *name;
 	const char *module_name;
+	char *settings;
 	terminator_t terminator;
 	struct config_iterator *(*next)(void);
 } config_iterator_t;
 
+typedef struct settings_iterator {
+	const char *key;
+	const char *value;
+	struct settings_iterator *(*next)(void);
+} settings_iterator_t;
 
-extern config_iterator_t *config_iterator(const char *path);
+
+extern config_iterator_t *first_config_iterator(const char *path);
+extern settings_iterator_t *first_settings_iterator(char *settings);
 
 
 #define config_foreach(path, iterator) for ( \
-	iterator = config_iterator(path); \
+	iterator = first_config_iterator(path); \
+	iterator != NULL; \
+	iterator = iterator->next())
+
+#define settings_foreach(settings, iterator) for ( \
+	iterator = first_settings_iterator(settings); \
 	iterator != NULL; \
 	iterator = iterator->next())
 
