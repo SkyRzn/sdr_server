@@ -13,13 +13,14 @@
 #define CONTAINER_PATH_STRING	STR(CONTAINER_PATH)
 
 
-typedef struct {
+typedef struct container {
 	char *name;
 	void *dlhandle;
+	struct container *next;
 } container_t;
 
 
-extern void init_container(container_t *container, const char *name);
+extern container_t *load_container(const char *name);
 extern void free_container(container_t *container);
 
 

@@ -5,7 +5,7 @@
 #define MODULE_MAX_NAME_LEN	64
 
 
-typedef struct {
+typedef struct module {
 	char *name;
 	const char *description;
 	int (*handler)(void *data, int count, void *instance);
@@ -16,6 +16,7 @@ typedef struct module_instance {
 	char *name;
 	module_t *module;
 	void *context;
+	struct module_instance *next;
 } module_instance_t;
 
 
@@ -33,7 +34,7 @@ typedef struct module_instance {
 
 
 extern module_t *get_module(void *dlhandle, const char *name);
-extern void init_module_instance(module_instance_t *instance, const char *name);
+extern module_instance_t *create_module_instance(const char *name);
 extern void free_module_instance(module_instance_t *instance);
 
 

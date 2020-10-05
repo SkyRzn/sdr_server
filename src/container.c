@@ -1,5 +1,4 @@
 #include <container.h>
-#include <routines/storage.h>
 #include <routines/dbg.h>
 
 #include <stdlib.h>
@@ -7,21 +6,38 @@
 #include <stdio.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <errno.h>
 
 
-void init_container(container_t *container, const char *name)
+container_t *load_container(const char *name)
 {
+	container_t *container;
+	void *dlhandle;
+	char *namedup;
 	char path[CONTAINER_MAX_NAME_LEN + sizeof(CONTAINER_PATH_STRING) + 8]; // 8 == len("/lib.so")
 
 	snprintf(path, sizeof(path), "%s/lib%s.so", CONTAINER_PATH_STRING, name);
 
-	container->name = strdup(name);
-	if (!container->name)
-		dbg_mem_exit();
+	dlhandle = dlopen(path, RTLD_LAZY);
+	if (!dlhandle)
+		dbg_return(NULL, "Can't open container: %s\n", dlerror());
 
-	container->dlhandle = dlopen(path, RTLD_NOW); // TODO LAZY?
-	if (!container->dlhandle)
-		dbg_exit("Can't open container: %s\n", dlerror());
+	namedup = strdup(name);
+	if (!namedup) {
+		dlclose(dlhandle);
+		dbg_mem_return(NULL);
+	}
+
+	container = malloc(sizeof(container_t));
+	if (!container) {
+		free_container(container);
+		dbg_mem_return(NULL);
+	}
+
+	container->dlhandle = dlhandle;
+	container->name = namedup;
+
+	return container;
 }
 
 void free_container(container_t *container)

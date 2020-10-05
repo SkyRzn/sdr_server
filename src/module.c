@@ -6,37 +6,58 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <errno.h>
 
 
 module_t *get_module(void *dlhandle, const char *name)
 {
-	module_t **module_pointer, *module;
+	module_t *module;
 	char fullname[FILENAME_MAX];
+
+	if (dlhandle == NULL) {
+		dbg("Arg dlhandle is NULL\n");
+		return NULL;
+	}
+
+	if (name == NULL) {
+		dbg("Arg name is NULL\n");
+		return NULL;
+	}
 
 	snprintf(fullname, sizeof(fullname), "%s_%s", MODULE_PREFIX_STRING, name);
 
-	module_pointer = dlsym(dlhandle, fullname);
-	if (!module_pointer)
-		dbg_exit("Can't load module pointer from %s: %s\n", name, dlerror());
+	module = dlsym(dlhandle, fullname);
+	if (!module) {
+		dbg("Module pointer is NULL in %s\n", name);
+		return NULL;
+	}
 
-	module = *module_pointer;
-	if (!module)
-		dbg_exit("Module pointer is NULL in %s\n", name);
-
-	if (strcmp(module->name, name) != 0)
-		dbg_exit("Module name %s doesn't correspond to given %s\n", module->name, name);
+	if (strcmp(module->name, name) != 0) {
+		dbg("Module name %s doesn't correspond to given %s\n", module->name, name);
+		return NULL;
+	}
 
 	return module;
 }
 
-void init_module_instance(module_instance_t *instance, const char *name)
+module_instance_t *create_module_instance(const char *name)
 {
+	module_instance_t *instance;
+
+	instance = malloc(sizeof(module_instance_t));
+	if (!instance)
+		dbg_mem_return(NULL);
+
 	instance->name = strdup(name);
-	if (!instance->name)
-		dbg_mem_exit();
+	if (!instance->name) {
+		free(instance);
+		dbg_mem_return(NULL);
+	}
 
 	instance->module = NULL;
 	instance->context = NULL;
+
+	return instance;
 }
 
 void free_module_instance(module_instance_t *instance)
