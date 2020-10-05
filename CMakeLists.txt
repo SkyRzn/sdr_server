@@ -8,22 +8,35 @@ set(VERSION_INFO_PATCH_VERSION 1)
 
 set(CMAKE_INSTALL_PREFIX /usr/bin)
 set(CONTAINER_PATH /usr/lib/${PROJECT_NAME}/containers)
+set(LIB_NAME "_${PROJECT_NAME}")
 
 add_definitions(-DVERSION_MAJOR=${VERSION_INFO_MAJOR_VERSION})
 add_definitions(-DVERSION_MINOR=${VERSION_INFO_MINOR_VERSION})
 add_definitions(-DVERSION_PATCH=${VERSION_INFO_PATCH_VERSION})
 add_definitions(-DPROJECT_NAME=${PROJECT_NAME})
 add_definitions(-DCONTAINER_PATH=${CONTAINER_PATH})
-add_definitions("-O3 -Wall")
 
-file(GLOB_RECURSE SOURCES "src/*.c")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wall --coverage")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+
+file(GLOB_RECURSE LIB_SOURCES "src/*.c")
+
+list(REMOVE_ITEM LIB_SOURCES "main.c")
 
 include_directories("include")
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_library(${LIB_NAME} ${LIB_SOURCES})
+
+add_executable(${PROJECT_NAME} "src/main.c")
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-target_link_libraries (${PROJECT_NAME} pthread dl)
+target_link_libraries (${PROJECT_NAME} ${LIB_NAME} pthread dl)
 
 add_subdirectory(containers)
+
+add_subdirectory(test)
+
+enable_testing()
+
+add_test(NAME test COMMAND test/${PROJECT_NAME}_test)
