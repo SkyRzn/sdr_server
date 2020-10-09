@@ -1,7 +1,7 @@
 #include <storage.h>
 #include <container.h>
 #include <module.h>
-#include <routines/list.h>
+#include <routines/autoarray.h>
 #include <routines/dbg.h>
 
 #include <stdlib.h>
@@ -10,8 +10,8 @@
 #include <errno.h>
 
 
-static list_t container_list;
-static list_t instance_list;
+static autoarray_t container_array;
+static autoarray_t instance_array;
 
 
 static container_t *get_container(const char *name);
@@ -20,8 +20,8 @@ static const char *get_module_name(char *contname);
 
 void init_storage(void)
 {
-	init_named_list(&container_list, container_t, next, name);
-	init_named_list(&instance_list, module_instance_t, next, name);
+	init_named_autoarray(&container_array, container_t, name);
+	init_named_autoarray(&instance_array, module_instance_t, name);
 }
 
 void free_storage(void)
@@ -29,30 +29,29 @@ void free_storage(void)
 	container_t *container;
 	module_instance_t *instance;
 
-	list_foreach(&instance_list, instance)
+	autoarray_foreach(&instance_array, instance)
 		free_module_instance(instance);
-	free_list(&instance_list);
+	free_autoarray(&instance_array);
 
-	list_foreach(&container_list, container)
+	autoarray_foreach(&container_array, container)
 		free_container(container);
-	free_list(&container_list);
+	free_autoarray(&container_array);
 }
 
 module_instance_t *get_module_instance(const char *name)
 {
 	module_instance_t *instance;
 
-	instance = find_list_item(&instance_list, name);
+	instance = get_autoarray_item_by_name(&instance_array, name);
 	if (instance)
 		return instance;
 
-	instance = create_module_instance(name);
+	instance = new_autoarray_item(&instance_array);
 	if (!instance)
 		return NULL;
 
-	if (add_list_item(&instance_list, instance) != 0) {
+	if (init_module_instance(instance, name) != 0) {
 		free_module_instance(instance);
-		free(instance);
 		return NULL;
 	}
 
@@ -64,6 +63,9 @@ int set_instance_module(module_instance_t *instance, const char *module_name)
 	char *contname;
 	const char *modname;
 	container_t *container;
+
+	if (instance == NULL || module_name == NULL)
+		dbg_return(-EINVAL, "Args error");
 
 	contname = strdup(module_name);
 	if (!contname)
@@ -77,7 +79,7 @@ int set_instance_module(module_instance_t *instance, const char *module_name)
 
 	instance->module = get_module(container->dlhandle, modname);
 	if (!instance->module)
-		dbg_return(-ENOENT, "Can't get module '%s' fron container '%s'\n",
+		dbg_return(-ENOENT, "Can't get module '%s' from container '%s'\n",
 				   modname, contname);
 
 	free(contname);
@@ -89,17 +91,17 @@ static container_t *get_container(const char *name)
 {
 	container_t *container;
 
-	container = find_list_item(&container_list, name);
-	if (container)
+	container = get_autoarray_item_by_name(&container_array, name);
+	if (container != NULL)
 		return container;
 
-	container = load_container(name);
-	if (!container)
+	container = new_autoarray_item(&container_array);
+	if (container == NULL)
 		return NULL;
 
-	if (add_list_item(&container_list, container) != 0) {
-		free_container(container);
-		free(container);
+	int res = load_container(container, name);
+	if (res != 0) {
+		pop_autoarray_item(&container_array);
 		return NULL;
 	}
 

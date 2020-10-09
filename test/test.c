@@ -3,6 +3,6 @@
 
 #include "storage.c"
 #include "module.c"
-#include "routines_list.c"
+#include "routines_autoarray.c"
 
 

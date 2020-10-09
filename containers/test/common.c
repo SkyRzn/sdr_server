@@ -3,13 +3,9 @@
 #include <stddef.h>
 
 
-static int handler(void *data, int count, void *instance)
+static void handler(module_instance_t *instance)
 {
-	(void)data;
-	(void)count;
 	(void)instance;
-
-	return 0;
 }
 
 

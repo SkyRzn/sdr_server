@@ -9,35 +9,31 @@
 #include <errno.h>
 
 
-container_t *load_container(const char *name)
+int load_container(container_t *container, const char *name)
 {
-	container_t *container;
 	void *dlhandle;
 	char *namedup;
 	char path[CONTAINER_MAX_NAME_LEN + sizeof(CONTAINER_PATH_STRING) + 8]; // 8 == len("/lib.so")
 
+	if (container == NULL || name == NULL)
+		dbg_return(-EINVAL, "Incorrect arguments");
+
 	snprintf(path, sizeof(path), "%s/lib%s.so", CONTAINER_PATH_STRING, name);
 
 	dlhandle = dlopen(path, RTLD_LAZY);
-	if (!dlhandle)
-		dbg_return(NULL, "Can't open container: %s\n", dlerror());
+	if (dlhandle == NULL)
+		dbg_return(-EACCES, "Can't open container: %s\n", dlerror());
 
 	namedup = strdup(name);
-	if (!namedup) {
+	if (namedup == NULL) {
 		dlclose(dlhandle);
-		dbg_mem_return(NULL);
-	}
-
-	container = malloc(sizeof(container_t));
-	if (!container) {
-		free_container(container);
-		dbg_mem_return(NULL);
+		dbg_mem_return(-ENOMEM);
 	}
 
 	container->dlhandle = dlhandle;
 	container->name = namedup;
 
-	return container;
+	return 0;
 }
 
 void free_container(container_t *container)

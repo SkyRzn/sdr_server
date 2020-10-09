@@ -3,22 +3,16 @@
 #include <stddef.h>
 
 
-static int handler(void *data, int count, void *instance)
+static void handler(module_instance_t *instance)
 {
-	module_instance_t *inst = (module_instance_t *)instance;
-	/* some work */
-	(void)inst;
-
-	return 0;
-}
-
-static int handler_plus5(void *data, int count, void *instance)
-{
-	module_instance_t *inst = (module_instance_t *)inst;
 	/* some work */
 	(void)instance;
+}
 
-	return 0;
+static void handler_plus5(module_instance_t *instance)
+{
+	/* some work */
+	(void)instance;
 }
 
 

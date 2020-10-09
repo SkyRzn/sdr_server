@@ -12,7 +12,10 @@ CHEAT_TEST(storage,
 	// check empty storage free
 	free_storage();
 
+	init_storage();
+
 	instance = get_module_instance("test");
+	(void)instance;
 	cheat_assert(instance != NULL);
 
 	res = set_instance_module(instance, "nonexistent_container:module");

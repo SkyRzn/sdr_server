@@ -2,22 +2,34 @@
 #define _SDR_SERVER_MODULE_H_
 
 
+#include <routines/autoarray.h>
+
+#include <semaphore.h>
+
+
 #define MODULE_MAX_NAME_LEN	64
 
+typedef struct module_instance module_instance_t;
+
+typedef void (module_handler_t)(module_instance_t *);
 
 typedef struct module {
 	char *name;
 	const char *description;
-	int (*handler)(void *data, int count, void *instance);
+	module_handler_t *handler;
 	const char **settings_fileds;
 } module_t;
 
-typedef struct module_instance {
+struct module_instance {
 	char *name;
 	module_t *module;
-	void *context;
-	struct module_instance *next;
-} module_instance_t;
+	void *data;
+	size_t data_size;
+	autoarray_t output_instance_array;
+
+	sem_t input_semaphore;
+	sem_t output_semaphore;
+};
 
 
 #define CONCATENATE_(x, y) x ## _ ## y
@@ -34,7 +46,7 @@ typedef struct module_instance {
 
 
 extern module_t *get_module(void *dlhandle, const char *name);
-extern module_instance_t *create_module_instance(const char *name);
+extern int init_module_instance(module_instance_t *instance, const char *name);
 extern void free_module_instance(module_instance_t *instance);
 
 

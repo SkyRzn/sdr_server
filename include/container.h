@@ -5,7 +5,7 @@
 #include <module.h>
 
 
-#define CONTAINER_MAX_NAME_LEN	64
+#define CONTAINER_MAX_NAME_LEN	256
 #define FULL_MAX_NAME_LEN	(MODULE_MAX_NAME_LEN + MODULE_MAX_NAME_LEN + 2) // + ':' + '\0'
 
 #define STR_(x) #x
@@ -20,7 +20,7 @@ typedef struct container {
 } container_t;
 
 
-extern container_t *load_container(const char *name);
+extern int load_container(container_t *container, const char *name);
 extern void free_container(container_t *container);
 
 
