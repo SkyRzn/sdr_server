@@ -26,9 +26,6 @@ struct module_instance {
 	void *data;
 	size_t data_size;
 	autoarray_t output_instance_array;
-
-	sem_t input_semaphore;
-	sem_t output_semaphore;
 };
 
 
