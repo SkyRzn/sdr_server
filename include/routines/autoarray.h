@@ -37,7 +37,7 @@ typedef struct {
 		(void *)(_item) - (void *)(_array)->data < (_array)->used_size; \
 		_item = (void *)(_item) + (_array)->item_size)
 
-extern void _init_autoarray(autoarray_t *array, size_t item_size, ssize_t name_offset);
+extern int _init_autoarray(autoarray_t *array, size_t item_size, ssize_t name_offset);
 extern void free_autoarray(autoarray_t *array);
 extern void *new_autoarray_item(autoarray_t *autoarray);
 extern void *get_autoarray_item_by_index(autoarray_t *autoarray, int index);
