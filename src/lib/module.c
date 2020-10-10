@@ -55,21 +55,6 @@ int init_module_instance(module_instance_t *instance, const char *name)
 	instance->data = NULL;
 	instance->data_size = 0;
 
-	if (sem_init(&instance->input_semaphore, 0, 0) != 0) {
-		dbg("Input semaphore init error\n");
-		goto exit_free_name;
-	}
-
-	if (sem_init(&instance->output_semaphore, 0, 0) != 0) {
-		dbg("Output semaphore init error\n");
-		goto exit_free_input_sem;
-	}
-
-exit_free_input_sem:
-	sem_destroy(&instance->input_semaphore);
-
-exit_free_name:
-	free(instance->name);
 	return 0;
 }
 
