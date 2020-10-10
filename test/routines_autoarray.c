@@ -5,20 +5,21 @@
 #include <string.h>
 
 
-CHEAT_TEST(routines_list,
+CHEAT_TEST(routines_autoarray,
 	typedef struct {
 		char *name;
 		int val;
 	} test_t;
 
 	char buf[16];
-	int i;
+	int i, res;
 	test_t *test;
 	autoarray_t test_array;
 	autoarray_t test_named_array;
 
-	(void)test;
-	init_autoarray(NULL, test_t);
+	res = init_autoarray(NULL, test_t);
+	cheat_assert(res == -EINVAL);
+
 	free_autoarray(NULL);
 
 	init_autoarray(&test_array, test_t);
@@ -76,10 +77,8 @@ CHEAT_TEST(routines_list,
 	cheat_assert(test == NULL);
 
 	i = 0;
-	autoarray_foreach(&test_array, test) {
-
+	autoarray_foreach(&test_array, test)
 		cheat_assert(test->val == i++);
-	}
 
 	i = 0;
 	autoarray_foreach(&test_named_array, test) {

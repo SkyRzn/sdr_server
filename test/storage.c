@@ -14,8 +14,10 @@ CHEAT_TEST(storage,
 
 	init_storage();
 
+	res = set_instance_module(NULL, NULL);
+	cheat_assert(res != 0);
+
 	instance = get_module_instance("test");
-	(void)instance;
 	cheat_assert(instance != NULL);
 
 	res = set_instance_module(instance, "nonexistent_container:module");
