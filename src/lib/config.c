@@ -42,7 +42,12 @@ static settings_iterator_t settings_iterator = {NULL, NULL, next_settings_iterat
 
 config_iterator_t *first_config_iterator(const char *path)
 {
+	if (path == NULL)
+		dbg_return(NULL, "Path is NULL\n");
+
 	current = buf = read_file(path);
+	if (current == NULL)
+		dbg_return(NULL, "File reading error\n");
 
 	clean_config();
 
@@ -175,7 +180,7 @@ static char *read_file(const char *path)
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
-		dbg_exit("Can't open config file %s\n", path);
+		dbg_return(NULL, "Can't open config file %s\n", path);
 
 	res = malloc(READ_BLOCK_SIZE);
 

@@ -52,6 +52,7 @@ module_instance_t *get_module_instance(const char *name)
 
 	if (init_module_instance(instance, name) != 0) {
 		free_module_instance(instance);
+		pop_autoarray_item(&instance_array);
 		return NULL;
 	}
 
@@ -120,4 +121,3 @@ static const char *get_module_name(char *contname)
 
 	return modname + 1;
 }
-
