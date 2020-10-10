@@ -45,6 +45,9 @@ module_t *get_module(void *dlhandle, const char *name)
 
 int init_module_instance(module_instance_t *instance, const char *name)
 {
+	if (!instance || !name)
+		dbg_return(-EINVAL, "Argument is NULL\n");
+
 	init_autoarray(&instance->output_instance_array, module_instance_t);
 
 	instance->name = strdup(name);
