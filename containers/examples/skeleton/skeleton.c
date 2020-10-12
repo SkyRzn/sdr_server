@@ -1,7 +1,31 @@
 #include <module.h>
 
+#include <stdlib.h>
 #include <stddef.h>
+#include <errno.h>
 
+
+typedef struct {
+	int a;
+	int b;
+} context_t;
+
+
+static int init(module_instance_t *instance)
+{
+	context_t *context;
+
+	context = malloc(sizeof(context_t));
+	if (context == NULL)
+		return -ENOMEM;
+
+	context->a = 1;
+	context->b = 2;
+
+	instance->context = context;
+
+	return 0;
+}
 
 static void handler(module_instance_t *instance)
 {
@@ -9,7 +33,12 @@ static void handler(module_instance_t *instance)
 	(void)instance;
 }
 
-static void handler_plus5(module_instance_t *instance)
+static void clean(module_instance_t *instance)
+{
+	free(instance->context);
+}
+
+static void handler2(module_instance_t *instance)
 {
 	/* some work */
 	(void)instance;
@@ -30,9 +59,11 @@ static const char *settings[] = {
 	"Maecenas sit amet lectus justo."
 
 
-ADD_MODULE(skeleton,       // note: without quites!
+ADD_MODULE(skeleton,       // note: without quotes!
 		   description,
+		   init,
 		   handler,
+		   clean,
 		   settings);
 
-ADD_MODULE(plus5, NULL, handler_plus5, NULL);
+ADD_MODULE(skeleton2, NULL, NULL, handler2, NULL, NULL);

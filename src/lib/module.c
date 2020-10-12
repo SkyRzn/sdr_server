@@ -9,9 +9,6 @@
 #include <errno.h>
 
 
-// static void start_inpit_loop(module_instance_t *instance);
-
-
 module_t *get_module(void *dlhandle, const char *name)
 {
 	module_t *module;
@@ -45,10 +42,20 @@ module_t *get_module(void *dlhandle, const char *name)
 
 int init_module_instance(module_instance_t *instance, const char *name)
 {
+	int res;
+
 	if (!instance || !name)
 		dbg_return(-EINVAL, "Argument is NULL\n");
 
-	init_autoarray(&instance->output_instance_array, module_instance_t);
+	res = init_autoarray(&instance->input_instance_autoarray, module_instance_t);
+	if (res != 0)
+		return res;
+	instance->input = instance->input_instance_autoarray.data;
+
+	res = init_autoarray(&instance->output_instance_autoarray, module_instance_t);
+	if (res != 0)
+		return res;
+	instance->output = instance->output_instance_autoarray.data;
 
 	instance->name = strdup(name);
 	if (!instance->name)
@@ -57,6 +64,7 @@ int init_module_instance(module_instance_t *instance, const char *name)
 	instance->module = NULL;
 	instance->data = NULL;
 	instance->data_size = 0;
+	instance->context = NULL;
 
 	return 0;
 }
@@ -64,6 +72,13 @@ int init_module_instance(module_instance_t *instance, const char *name)
 void free_module_instance(module_instance_t *instance)
 {
 	free(instance->name);
+}
+
+void set_output_instance_module_data(module_instance_t *instance, void *data, size_t size)
+{
+	instance->output->data = data;
+	instance->output->data_size = size;
+	instance->output->module->handler(instance->output);
 }
 
 /*
