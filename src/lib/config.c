@@ -31,7 +31,6 @@ static settings_iterator_t *next_settings_iterator(void);
 static config_iterator_t *parse_current_element(void);
 static terminator_t find_terminator(void);
 static char *read_file(const char *path);
-static void free_iterator(void);
 static void clean_config(void);
 
 
@@ -64,6 +63,20 @@ settings_iterator_t *first_settings_iterator(char *settings)
 	return next_settings_iterator();
 }
 
+bool check_config_end(config_iterator_t *iterator)
+{
+	if (iterator != NULL)
+		return true;
+
+	if (buf) {
+		free(buf);
+		regfree(&regex);
+		buf = NULL;
+	}
+
+	return false;
+}
+
 static config_iterator_t *next_config_iterator(void)
 {
 	config_iterator_t *iter;
@@ -79,9 +92,6 @@ static config_iterator_t *next_config_iterator(void)
 	iter = parse_current_element();
 
 	current = next;
-
-	if (iterator.terminator == ZERO_TERMINATOR)
-		free_iterator();
 
 	return iter;
 }
@@ -209,16 +219,6 @@ static char *read_file(const char *path)
 	dbg_exit("Config file reading error: %s\n", strerror(errno));
 
 	return NULL;
-}
-
-static void free_iterator(void)
-{
-	if (!buf)
-		return;
-
-	free(buf);
-	regfree(&regex);
-	buf = NULL;
 }
 
 static void clean_config(void)
