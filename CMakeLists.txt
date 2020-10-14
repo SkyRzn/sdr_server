@@ -17,8 +17,19 @@ add_definitions(-DVERSION_PATCH=${VERSION_INFO_PATCH_VERSION})
 add_definitions(-DPROJECT_NAME=${PROJECT_NAME})
 add_definitions(-DCONTAINER_PATH=${CONTAINER_PATH})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wall -Werror --coverage")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wall -Werror")
+
+add_compile_options(
+	"-Wall"
+	"$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb>"
+	"$<$<CONFIG:RELEASE>:-O3>"
+)
+
+option(COVERAGE "Build with coverage" OFF)
+if (COVERAGE)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+endif()
 
 include_directories("include")
 
