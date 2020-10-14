@@ -26,6 +26,7 @@ add_compile_options(
 )
 
 option(COVERAGE "Build with coverage" OFF)
+
 if (COVERAGE)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
@@ -44,6 +45,9 @@ target_link_libraries (${PROJECT_NAME} ${LIB_NAME} dl)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(containers)
-add_subdirectory(test)
+
+if (COVERAGE)
+	add_subdirectory(test)
+endif()
 
 
