@@ -26,7 +26,7 @@ add_compile_options(
 option(TEST_COVERAGE "Build with test coverage" OFF)
 option(EXAMPLE "Build with examples" ON)
 
-if (TEST)
+if (TEST_COVERAGE)
 	add_definitions(-DTEST_COVERAGE=1)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")

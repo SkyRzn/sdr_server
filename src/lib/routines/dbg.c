@@ -5,7 +5,10 @@
 #include <string.h>
 
 
-void dbg_(const char *file, const char *func, int line, const char *fmt, ...)
+static int _errno = 0;
+
+
+void __dbg(const char *file, const char *func, int line, const char *fmt, ...)
 {
 	va_list args;
 	const char *p;
@@ -19,4 +22,14 @@ void dbg_(const char *file, const char *func, int line, const char *fmt, ...)
 	va_start (args, fmt);
 	vfprintf(stderr, fmt, args);
 	va_end (args);
+}
+
+void dbg_set_errno(int errno)
+{
+	_errno = errno;
+}
+
+int dbg_errno(void)
+{
+	return _errno;
 }
