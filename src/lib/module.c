@@ -14,52 +14,27 @@ module_t *get_module(void *dlhandle, const char *name)
 	module_t *module;
 	char fullname[FILENAME_MAX];
 
-	if (dlhandle == NULL) {
-		dbg("Arg dlhandle is NULL\n");
-		return NULL;
-	}
-
-	if (name == NULL) {
-		dbg("Arg name is NULL\n");
-		return NULL;
-	}
+	dbg_assert_not_null(dlhandle, NULL);
+	dbg_assert_not_null(name, NULL);
 
 	snprintf(fullname, sizeof(fullname), "%s_%s", MODULE_PREFIX_STRING, name);
 
 	module = dlsym(dlhandle, fullname);
-	if (!module) {
-		dbg("Module pointer is NULL in %s\n", name);
-		return NULL;
-	}
+	dbg_assert_not_null(module, NULL);
 
-	if (strcmp(module->name, name) != 0) {
-		dbg("Module name %s doesn't correspond to given %s\n", module->name, name);
-		return NULL;
-	}
+// 	dbg_assert(strcmp(module->name, name) == 0,
+// 		NULL, "Module name %s doesn't correspond to given %s\n", module->name, name); // TODO remove module->name and this assertion
 
 	return module;
 }
 
 int init_module_instance(module_instance_t *instance, const char *name)
 {
-	int res;
-
-	if (!instance || !name)
-		dbg_return(-EINVAL, "Argument is NULL\n");
-
-	res = init_autoarray(&instance->input_instance_autoarray, module_instance_t);
-	if (res != 0)
-		return res;
-	instance->input = instance->input_instance_autoarray.data;
-
-	res = init_autoarray(&instance->output_instance_autoarray, module_instance_t);
-	if (res != 0)
-		return res;
-	instance->output = instance->output_instance_autoarray.data;
+	dbg_assert_not_null(instance, -EINVAL);
+	dbg_assert_not_null(name, -EINVAL);
 
 	instance->name = strdup(name);
-	if (!instance->name)
-		dbg_mem_return(-ENOMEM);
+	dbg_malloc_assert(instance->name, -ENOMEM);
 
 	instance->module = NULL;
 	instance->data = NULL;
@@ -79,6 +54,13 @@ void set_output_instance_module_data(module_instance_t *instance, void *data, si
 	instance->output->data = data;
 	instance->output->data_size = size;
 	instance->output->module->handler(instance->output);
+}
+
+void begin_module_instance_loop(module_instance_t *instance)
+{
+	while (1) { // TODO replace by stop condition
+		instance->module->handler(instance);
+	}
 }
 
 /*
