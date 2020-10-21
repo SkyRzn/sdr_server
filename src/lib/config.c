@@ -68,10 +68,16 @@ config_iterator_t *first_config_iterator(config_t *config)
 
 void push_config_iterator(config_t *config)
 {
+	config_iterator_t *iterator;
+	char *next_pointer;
+
 	dbg_assert_not_null(config, );
 
-	config_iterator_t *iterator = &config->iterator;
-	char *next_pointer;
+	iterator = &config->iterator;
+
+	iterator->name = NULL;
+	iterator->module_name = NULL;
+	iterator->settings = NULL;
 
 	iterator->terminator = find_terminator(iterator->pointer, &next_pointer);
 
@@ -132,7 +138,7 @@ static terminator_t find_terminator(char *current, char **next)
 		}
 	}
 
-	if (!*next)
+	if (nearest_index == -1)
 		return ZERO_TERMINATOR;
 
 	*next = current + min_distance;

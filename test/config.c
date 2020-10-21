@@ -4,8 +4,8 @@
 CHEAT_TEST(config,
 	config_t config;
 	config_iterator_t *iterator;
-	const char *instance_names[] = {"instance1", "instance2"};
-	const char *module_names[] = {"container1:module1", "container2:module2"};
+	const char *instance_names[] = {"instance1", "instance2", "instance2", "instance3"};
+	const char *module_names[] = {"container1:module1", "container2:module2", NULL};
 	int i;
 
 	cheat_assert(load_config(NULL, "path") == -EINVAL);
@@ -23,8 +23,12 @@ CHEAT_TEST(config,
 		cheat_assert(iterator->pointer != NULL);
 		cheat_assert(iterator->name != NULL);
 		cheat_assert(strcmp(iterator->name, instance_names[i]) == 0);
-		cheat_assert(iterator->module_name != NULL);
-		cheat_assert(strcmp(iterator->module_name, module_names[i]) == 0);
+
+		if (module_names[i] != NULL) {
+			cheat_assert(iterator->module_name != NULL);
+			cheat_assert(strcmp(iterator->module_name, module_names[i]) == 0);
+		}
+
 		i++;
 	}
 
