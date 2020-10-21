@@ -1,7 +1,6 @@
 #include <storage.h>
 #include <container.h>
 #include <module.h>
-#include <routines/autoarray.h>
 #include <routines/dbg.h>
 
 #include <stdlib.h>
@@ -12,6 +11,7 @@
 
 static autoarray_t container_array;
 static autoarray_t instance_array;
+static autoarray_t thread_array;
 
 
 static container_t *get_container(const char *name);
@@ -22,6 +22,7 @@ void init_storage(void)
 {
 	init_named_autoarray(&container_array, container_t, name);
 	init_named_autoarray(&instance_array, module_instance_t, name);
+	init_autoarray(&thread_array, thread_t);
 }
 
 void free_storage(void)
@@ -36,6 +37,8 @@ void free_storage(void)
 	autoarray_foreach(&container_array, container)
 		free_container(container);
 	free_autoarray(&container_array);
+
+	free_autoarray(&thread_array);
 }
 
 module_instance_t *get_module_instance(const char *name)
@@ -86,6 +89,21 @@ int set_instance_module(module_instance_t *instance, const char *module_name)
 	free(contname);
 
 	return 0;
+}
+
+autoarray_t *_instance_array(void)
+{
+	return &instance_array;
+}
+
+autoarray_t *_thread_array(void)
+{
+	return &thread_array;
+}
+
+thread_t *new_thread(void)
+{
+	return new_autoarray_item(&thread_array);
 }
 
 static container_t *get_container(const char *name)
