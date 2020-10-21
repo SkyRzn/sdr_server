@@ -45,25 +45,32 @@ int load_config(config_t *config, const char *path)
 void free_config(config_t *config)
 {
 	dbg_assert_not_null(config, );
-
 	free(config->buffer);
 	regfree(&config->regex);
-	free(config);
 }
 
-void init_config_iterator(config_t *config, config_iterator_t *iterator)
+config_iterator_t *first_config_iterator(config_t *config)
 {
+	dbg_assert_not_null(config, NULL);
+
+	config_iterator_t *iterator = &config->iterator;
+
 	iterator->pointer = config->buffer;
 	iterator->name = NULL;
 	iterator->module_name = NULL;
 	iterator->settings = NULL;
 	iterator->terminator = SEMICOLON_TERMINATOR;
 
-	push_config_iterator(config, iterator);
+	push_config_iterator(config);
+
+	return &config->iterator;
 }
 
-void push_config_iterator(config_t *config, config_iterator_t *iterator)
+void push_config_iterator(config_t *config)
 {
+	dbg_assert_not_null(config, );
+
+	config_iterator_t *iterator = &config->iterator;
 	char *next_pointer;
 
 	iterator->terminator = find_terminator(iterator->pointer, &next_pointer);
@@ -76,6 +83,9 @@ static int parse_current_element(config_t *config, config_iterator_t *iterator)
 {
 	regmatch_t pmatch[4];
 	char *beg, *end;
+
+	dbg_assert_not_null(config, -EINVAL);
+	dbg_assert_not_null(iterator, -EINVAL);
 
 	if (!iterator->pointer || *iterator->pointer == '\0')
 		return -EINVAL;
