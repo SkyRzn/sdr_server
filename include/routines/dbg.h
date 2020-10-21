@@ -69,6 +69,11 @@ extern int _dbg_errno;
 		dbg_assert_not_error(_value, __retval); \
 	} while(0)
 
+#define dbg_cheat_assert_error(_function) \
+	dbg_set_errno(0); \
+	_function; \
+	cheat_assert(dbg_errno() != 0)
+
 
 extern void __dbg(const char *file, const char *func, int line, const char *fmt, ...)
 	__attribute__((format(printf, 4, 5)));
