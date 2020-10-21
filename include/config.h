@@ -4,46 +4,44 @@
 
 #include <module.h>
 
+#include <regex.h>
 #include <stdbool.h>
 
 
-typedef enum { // TODO move to connector.c?
+typedef enum {
 	ZERO_TERMINATOR = -1,
-	DIRECT_CONNECTION_TERMINATOR = 0,
-	MULTITHREADED_CONNECTION_TERMINATOR,
+	CONNECTION_TERMINATOR = 0,
 	SEMICOLON_TERMINATOR,
 	MAX_TERMINATOR
 } terminator_t;
 
-typedef struct config_iterator {
-	const char *name;
-	const char *module_name;
+typedef struct {
+	char *pointer;
+	char *name;
+	char *module_name;
 	char *settings;
 	terminator_t terminator;
-	struct config_iterator *(*next)(void);
 } config_iterator_t;
 
-typedef struct settings_iterator {
-	const char *key;
-	const char *value;
-	struct settings_iterator *(*next)(void);
-} settings_iterator_t;
+typedef struct {
+	char *buffer;
+	regex_t regex;
+} config_t;
 
 
-extern config_iterator_t *first_config_iterator(const char *path);
-extern settings_iterator_t *first_settings_iterator(char *settings);
-extern bool check_config_end(config_iterator_t *iterator);
+#define config_foreach(_config, _iterator) for ( \
+	init_config_iterator(_config, _iterator); \
+	(_iterator)->pointer != NULL; \
+	push_config_iterator(_config, _iterator))
+#define settings_foreach(_settings, _iterator) for ( \
+	_iterator = first_settings_iterator(_settings); \
+	_iterator != NULL; \
+	_iterator = (_iterator)->next())
 
 
-#define config_foreach(path, iterator) for ( \
-	iterator = first_config_iterator(path); \
-	check_config_end(iterator); \
-	iterator = iterator->next())
-
-#define settings_foreach(settings, iterator) for ( \
-	iterator = first_settings_iterator(settings); \
-	iterator != NULL; \
-	iterator = iterator->next())
-
+extern int load_config(config_t *config, const char *path);
+extern void free_config(config_t *config);
+extern void init_config_iterator(config_t *config, config_iterator_t *iterator);
+extern void push_config_iterator(config_t *config, config_iterator_t *iterator);
 
 #endif

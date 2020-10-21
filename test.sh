@@ -2,7 +2,7 @@
 
 cd build &&
 make clean &&
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON &&
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DTEST_COVERAGE=ON &&
 make &&
 cd .. &&
 build/test/sdr_server_test

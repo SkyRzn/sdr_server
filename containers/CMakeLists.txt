@@ -1,4 +1,10 @@
 set(CMAKE_INSTALL_PREFIX ${CONTAINER_PATH})
 
-add_subdirectory(examples)
-add_subdirectory(test)
+
+if (EXAMPLE)
+	add_subdirectory(examples)
+endif()
+
+if (TEST_COVERAGE)
+	add_subdirectory(test)
+endif()
