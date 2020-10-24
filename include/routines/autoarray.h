@@ -3,6 +3,7 @@
 
 
 #include <sys/types.h>
+#include <stddef.h>
 
 
 typedef struct {
@@ -16,10 +17,6 @@ typedef struct {
 	int index;
 } autoarray_t;
 
-
-#ifndef offsetof
-#define offsetof(_type, _member) ((size_t)&(((_type *)0)->_member))
-#endif
 
 #define init_autoarray(_array, _type) \
 	_init_autoarray(_array, sizeof(_type), -1)
