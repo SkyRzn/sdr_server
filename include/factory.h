@@ -2,7 +2,7 @@
 #define _SDR_SERVER_FACTORY_H_
 
 
-extern int run_factory(const char *config_path);
+extern int init_factory(const char *config_path);
 
 
 #endif

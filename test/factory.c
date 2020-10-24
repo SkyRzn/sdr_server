@@ -2,5 +2,5 @@
 
 
 CHEAT_TEST(factory,
-	cheat_assert(run_factory(NULL) == -EINVAL);
+	cheat_assert(init_factory(NULL) == -EINVAL);
 )

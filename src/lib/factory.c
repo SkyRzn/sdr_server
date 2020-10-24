@@ -2,31 +2,49 @@
 #include <config.h>
 #include <routines/dbg.h>
 
+#include <errno.h>
+#include <stdio.h> // TEST
 
-int run_factory(const char *config_path)
+
+void init_factory(const char *config_path)
 {
-	if (!config_path || !*config_path)
-		dbg_return(-1, "Config path is empty!"); //TODO add error code?
-
 	config_iterator_t *iterator;
+	module_instance_t *instance, *prev_instance = NULL;
+	config_t config;
 
-	config_foreach(config_path, iterator) {
-		if (!iterator->module_name || !iterator->name)
-			continue;
+	dbg_assert_not_null(config_path, );
 
-		init_storage();
+	if (load_config(&config, config_path) != 0)
+		return;
 
-		module_instance_t *instance = get_module_instance(iterator->module_name);
+	init_storage();
 
-		if (!instance) 
-			continue;
+	config_foreach(&config, iterator) {
+		dbg_assert_not_null(iterator->name, );
 
-		if (set_instance_module(instance, iterator->name) == 0) {
+		instance = get_module_instance(iterator->name);
 
+		dbg_assert_not_null(instance, );
+
+		if (iterator->module_name)
+			dbg_assert_not_error(set_instance_module(instance, iterator->module_name), );
+
+		if (prev_instance) {
+			instance->input = prev_instance;
+			prev_instance->output = instance;
 		}
 
-		free_storage();	
+		prev_instance = (iterator->terminator == CONNECTION_TERMINATOR) ? instance : NULL;
 	}
 
-	return 0;
+	module_instance_foreach(instance) {
+		printf("%s -> %s -> %s\n",
+			   (instance->input) ? instance->input->name : "NULL",
+			   instance->name,
+			   (instance->output) ? instance->output->name : "NULL"
+  			);
+	}
+
+	free_storage();
+	free_config(&config);
 }
