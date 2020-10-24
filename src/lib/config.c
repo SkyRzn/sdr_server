@@ -83,6 +83,8 @@ void push_config_iterator(config_t *config)
 
 	if (parse_current_element(config, iterator) == 0)
 		iterator->pointer = next_pointer;
+	else
+		iterator->pointer = NULL;
 }
 
 static int parse_current_element(config_t *config, config_iterator_t *iterator)
