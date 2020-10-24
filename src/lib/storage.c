@@ -68,23 +68,20 @@ int set_instance_module(module_instance_t *instance, const char *module_name)
 	const char *modname;
 	container_t *container;
 
-	if (instance == NULL || module_name == NULL)
-		dbg_return(-EINVAL, "Args error");
+	dbg_assert_not_null(instance, -EINVAL);
+	dbg_assert_not_null(module_name, -EINVAL);
 
 	contname = strdup(module_name);
-	if (!contname)
-		dbg_mem_return(-ENOMEM);
+	dbg_malloc_assert(contname, -ENOMEM);
 
 	modname = get_module_name(contname);
 
 	container = get_container(contname);
-	if (!container)
-		dbg_return(-ENOENT, "Can't get container '%s'\n", contname);
+	dbg_assert(container != NULL, -ENOENT, "Can't get container '%s'\n", contname);
 
 	instance->module = get_module(container->dlhandle, modname);
-	if (!instance->module)
-		dbg_return(-ENOENT, "Can't get module '%s' from container '%s'\n",
-				   modname, contname);
+	dbg_assert(instance->module != NULL, -ENOENT,
+			   "Can't get module '%s' from container '%s'\n", modname, contname);
 
 	free(contname);
 
@@ -118,9 +115,9 @@ static container_t *get_container(const char *name)
 	if (container == NULL)
 		return NULL;
 
-	int res = load_container(container, name);
-	if (res != 0) {
-		pop_autoarray_item(&container_array);
+	if (load_container(container, name) != 0) {
+		container = pop_autoarray_item(&container_array);
+		free(container);
 		return NULL;
 	}
 
