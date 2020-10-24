@@ -6,12 +6,14 @@
 
 
 typedef struct {
-	void *data;
+	int count;
 	size_t size;
-	size_t used_size;
 	size_t item_size;
 	ssize_t name_offset;
-	int item_count;
+
+	void **pointer;
+
+	int index;
 } autoarray_t;
 
 
@@ -33,9 +35,9 @@ typedef struct {
 	(*(char **)autoarray_item_member(_item, (_array)->name_offset)) : NULL)
 
 #define autoarray_foreach(_array, _item) \
-	for (_item = (_array)->data; \
-		(void *)(_item) - (void *)(_array)->data < (_array)->used_size; \
-		_item = (void *)(_item) + (_array)->item_size)
+	for (_item = init_autoarray_foreach(_array); \
+		_item != NULL; \
+		_item = push_autoarray_foreach(_array))
 
 extern int _init_autoarray(autoarray_t *array, size_t item_size, ssize_t name_offset);
 extern void free_autoarray(autoarray_t *array);
@@ -43,6 +45,8 @@ extern void *new_autoarray_item(autoarray_t *autoarray);
 extern void *get_autoarray_item_by_index(autoarray_t *autoarray, int index);
 extern void *get_autoarray_item_by_name(autoarray_t *autoarray, const char *name);
 extern void *pop_autoarray_item(autoarray_t *array);
+extern void *init_autoarray_foreach(autoarray_t *array);
+extern void *push_autoarray_foreach(autoarray_t *array);
 
 
 #endif

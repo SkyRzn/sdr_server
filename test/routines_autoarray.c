@@ -13,7 +13,7 @@ CHEAT_TEST(routines_autoarray,
 
 	char buf[16];
 	int i, res;
-	test_t *test;
+	test_t *test, *saved_test;
 	autoarray_t test_array;
 	autoarray_t test_named_array;
 
@@ -64,6 +64,9 @@ CHEAT_TEST(routines_autoarray,
 		cheat_assert(test != NULL);
 		test->val = i;
 
+		if (i == 10)
+			saved_test = test;
+
 		test = new_autoarray_item(&test_named_array);
 		cheat_assert(test != NULL);
 		test->name = strdup(buf);
@@ -77,8 +80,11 @@ CHEAT_TEST(routines_autoarray,
 	cheat_assert(test == NULL);
 
 	i = 0;
-	autoarray_foreach(&test_array, test)
+	autoarray_foreach(&test_array, test) {
+		if (i == 10)
+			cheat_assert(saved_test == test); // check pointer stability
 		cheat_assert(test->val == i++);
+	}
 
 	i = 0;
 	autoarray_foreach(&test_named_array, test) {

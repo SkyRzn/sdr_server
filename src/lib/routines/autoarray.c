@@ -4,70 +4,79 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <stdio.h> //TEST
+
+
+#define POINTER_SIZE sizeof(void *)
 
 
 int _init_autoarray(autoarray_t *array, size_t item_size, ssize_t name_offset)
 {
-	if (array == NULL)
-		dbg_return(-EINVAL, "Array arg is NULL\n");
+	dbg_assert_not_null(array, -EINVAL);
 
 	if (item_size < 0)
 		dbg_return(-EINVAL, "Item size is less than zero\n");
 
-	array->data = NULL;
-	array->size = 0;
-	array->used_size = 0;
+	array->pointer = malloc(POINTER_SIZE);
+	dbg_malloc_assert(array, -ENOMEM);
+
+	array->size = POINTER_SIZE;
 	array->item_size = item_size;
 	array->name_offset = name_offset;
-	array->item_count = 0;
+	array->count = 0;
+	array->index = 0;
 
 	return 0;
 }
 
 void free_autoarray(autoarray_t *array)
 {
-	if (array == NULL)
-			dbg_return(, "Array arg is NULL\n");
+	void *item;
 
-	free(array->data);
+	dbg_assert_not_null(array, );
+
+	if (array->item_size > 0) {
+		autoarray_foreach(array, item)
+			free(item);
+	}
+
+	free(array->pointer);
+
 	_init_autoarray(array, 0, -1);
 }
 
 void *new_autoarray_item(autoarray_t *array)
 {
-	void *item;
+	void **pointer;
 
-	if (array == NULL)
-		dbg_return(NULL, "Array arg is NULL\n");
+	dbg_assert_not_null(array, NULL);
 
-	if (array->size == 0) {
-		array->data = malloc(array->item_size);
-		if (!array->data)
-			dbg_mem_return(NULL);
-		array->size = array->item_size;
-	} else if (array->used_size + array->item_size > array->size) {
+	if ((array->count + 1) * POINTER_SIZE > array->size) {
 		array->size *= 2;
-		array->data = realloc(array->data, array->size);
-		if (!array->data)
+		array->pointer = realloc(array->pointer, array->size);
+		if (!array->pointer)
 			dbg_mem_return(NULL);
 	}
 
-	item = array->data + array->used_size;
-	array->used_size += array->item_size;
-	array->item_count++;
+	pointer = array->pointer + array->count;
+	array->count++;
 
-	return item;
+	if (array->item_size != 0) {
+		*pointer = malloc(array->item_size);
+		return *pointer;
+	}
+
+	return pointer;
 }
 
 void *get_autoarray_item_by_index(autoarray_t *array, int index)
 {
-	if (array == NULL)
-		dbg_return(NULL, "Array arg is NULL\n");
+	dbg_assert_not_null(array, NULL);
 
-	if (index < 0 || index >= array->item_count)
+	if (index < 0 || index >= array->count)
 		dbg_return(NULL, "Incorrect array index: %d\n", index);
 
-	return array->data + array->item_size * index;
+	return *(array->pointer + index);
 }
 
 void *get_autoarray_item_by_name(autoarray_t *array, const char *name)
@@ -75,8 +84,8 @@ void *get_autoarray_item_by_name(autoarray_t *array, const char *name)
 	const char *item_name;
 	void *item;
 
-	if (array == NULL || name == NULL)
-		dbg_return(NULL, "Argument is NULL\n");
+	dbg_assert_not_null(array, NULL);
+	dbg_assert_not_null(name, NULL);
 
 	if (array->name_offset < 0) {
 		dbg_return(NULL, "This array isn't a named array\n");
@@ -94,14 +103,30 @@ void *get_autoarray_item_by_name(autoarray_t *array, const char *name)
 
 void *pop_autoarray_item(autoarray_t *array)
 {
-	if (array == NULL)
-		dbg_return(NULL, "Array arg is NULL\n");
+	dbg_assert_not_null(array, NULL);
 
-	if (array->item_count < 1)
+	if (array->count < 1)
 		dbg_return(NULL, "Autoarray is empty\n");
 
-	array->item_count -= 1;
-	array->used_size -= array->item_size;
+	array->count--;
 
-	return (array->data + array->used_size);
+	return *(array->pointer + array->count);
+}
+
+void *init_autoarray_foreach(autoarray_t *array)
+{
+	if (array->count < 1)
+		return NULL;
+
+	array->index = 0;
+
+	return *(array->pointer + array->index);
+}
+
+void *push_autoarray_foreach(autoarray_t *array)
+{
+	if (++array->index >= array->count)
+		return NULL;
+
+	return *(array->pointer + array->index);
 }
