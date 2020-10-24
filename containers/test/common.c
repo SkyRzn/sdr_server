@@ -1,4 +1,5 @@
 #include <module.h>
+#include <routines/autoarray.h> //TEST
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,36 +10,42 @@
 
 
 #define LEN 1024
-static int data[LEN];
+static int DATA[LEN];
 
 
-static void source_handler(module_instance_t *instance)
+static void source_handler(instance_t *instance, void *data, size_t offset, size_t size)
 {
 	int i;
+	autoarray_t arr;
+
+	(void)data;
+	(void)offset;
+	(void)size;
+
+	init_autoarray(&arr, autoarray_t); //TEST
 
 	for (i = 0; i < LEN; i++)
-		data[i] = i;
+		DATA[i] = i;
 
-	set_output_instance_module_data(instance, data, LEN * sizeof(int));
+	set_output_instance_data(instance, data, 0, LEN * sizeof(int));
 }
 
-static void doubling_handler(module_instance_t *instance)
+static void doubling_handler(instance_t *instance, void *data_, size_t offset, size_t size)
 {
-	int i;
+	int i, *data = (int *)data_;
 
-	for (i = 0; i < instance->data_size/sizeof(int); i++)
+	for (i = offset/sizeof(int); i < (offset + size)/sizeof(int); i++)
 		data[i] *= 2;
 
-	set_output_instance_module_data(instance, instance->data, instance->data_size);
+	set_output_instance_data(instance, data, offset, size);
 }
 
-static void destination_handler(module_instance_t *instance)
+static void destination_handler(instance_t *instance, void *data_, size_t offset, size_t size)
 {
-	int i;
+	int i, *data = (int *)data_;
 
-	for (i = 0; i < instance->data_size/sizeof(int); i++) {
-		if (data[i] != i * 2)
-			exit(-EINVAL);
+	for (i = offset/sizeof(int); i < (offset + size)/sizeof(int); i++) {
+		(void)data; // check
 	}
 }
 

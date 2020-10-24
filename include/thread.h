@@ -10,12 +10,12 @@
 typedef void *(thread_handler_t)(void *);
 
 typedef struct {
-	module_instance_t *instance;
+	instance_t *instance;
 	pthread_t pthread;
 } thread_t;
 
 
-extern int init_thread(thread_t *thread, module_instance_t *instance, thread_handler_t handler);
+extern int init_thread(thread_t *thread, instance_t *instance, thread_handler_t handler);
 
 
 #endif

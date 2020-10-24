@@ -1,7 +1,7 @@
 #include <thread.h>
 
 
-int init_thread(thread_t *thread, module_instance_t *instance, thread_handler_t handler)
+int init_thread(thread_t *thread, instance_t *instance, thread_handler_t handler)
 {
 	int res;
 

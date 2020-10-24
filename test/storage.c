@@ -4,7 +4,7 @@
 
 
 CHEAT_TEST(storage,
-	module_instance_t *instance;
+	instance_t *instance;
 	int res;
 
 	init_storage();
@@ -15,7 +15,7 @@ CHEAT_TEST(storage,
 	init_storage();
 
 
-	instance = get_module_instance("test");
+	instance = get_instance("test");
 	cheat_assert(instance != NULL);
 
 	cheat_assert(set_instance_module(instance, NULL) == -EINVAL);

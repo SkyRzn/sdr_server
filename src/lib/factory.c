@@ -9,7 +9,7 @@
 void init_factory(const char *config_path)
 {
 	config_iterator_t *iterator;
-	module_instance_t *instance, *prev_instance = NULL;
+	instance_t *instance, *prev_instance = NULL;
 	config_t config;
 
 	dbg_assert_not_null(config_path, );
@@ -22,7 +22,7 @@ void init_factory(const char *config_path)
 	config_foreach(&config, iterator) {
 		dbg_assert_not_null(iterator->name, );
 
-		instance = get_module_instance(iterator->name);
+		instance = get_instance(iterator->name);
 
 		dbg_assert_not_null(instance, );
 

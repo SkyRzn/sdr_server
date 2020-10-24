@@ -22,13 +22,10 @@ module_t *get_module(void *dlhandle, const char *name)
 	module = dlsym(dlhandle, fullname);
 	dbg_assert_not_null(module, NULL);
 
-// 	dbg_assert(strcmp(module->name, name) == 0,
-// 		NULL, "Module name %s doesn't correspond to given %s\n", module->name, name); // TODO remove module->name and this assertion
-
 	return module;
 }
 
-int init_module_instance(module_instance_t *instance, const char *name)
+int init_instance(instance_t *instance, const char *name)
 {
 	dbg_assert_not_null(instance, -EINVAL);
 	dbg_assert_not_null(name, -EINVAL);
@@ -37,8 +34,6 @@ int init_module_instance(module_instance_t *instance, const char *name)
 	dbg_malloc_assert(instance->name, -ENOMEM);
 
 	instance->module = NULL;
-	instance->data = NULL;
-	instance->data_size = 0;
 	instance->context = NULL;
 	instance->input = NULL;
 	instance->output = NULL;
@@ -46,27 +41,25 @@ int init_module_instance(module_instance_t *instance, const char *name)
 	return 0;
 }
 
-void free_module_instance(module_instance_t *instance)
+void free_instance(instance_t *instance)
 {
 	free(instance->name);
 }
 
-void set_output_instance_module_data(module_instance_t *instance, void *data, size_t size)
+void set_output_instance_data(instance_t *instance, void *data, size_t offset, size_t size)
 {
-	instance->output->data = data;
-	instance->output->data_size = size;
-	instance->output->module->handler(instance->output);
+	instance->output->module->handler(instance->output, data, offset, size);
 }
 
-void begin_module_instance_loop(module_instance_t *instance)
+void begin_instance_loop(instance_t *instance)
 {
 	while (1) { // TODO replace by stop condition
-		instance->module->handler(instance);
+		instance->module->handler(instance, NULL, 0, 0);
 	}
 }
 
 /*
-static void start_inpit_loop(module_instance_t *instance)
+static void start_inpit_loop(instance_t *instance)
 {
 	module_handler_t *child;
 

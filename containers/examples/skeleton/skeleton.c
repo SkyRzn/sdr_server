@@ -1,4 +1,5 @@
 #include <module.h>
+#include <option.h>
 
 #include <stdlib.h>
 #include <stddef.h>
@@ -6,12 +7,18 @@
 
 
 typedef struct {
-	int a;
-	int b;
+	int option1;
+	int option2;
 } context_t;
 
+option_t option[] = {
+	make_option("option1", OPTION_TYPE_INT, context_t, option1),
+	make_option("option2", OPTION_TYPE_INT, context_t, option2),
+	end_option()
+};
 
-static int init(module_instance_t *instance)
+
+static int init(instance_t *instance)
 {
 	context_t *context;
 
@@ -19,26 +26,26 @@ static int init(module_instance_t *instance)
 	if (context == NULL)
 		return -ENOMEM;
 
-	context->a = 1;
-	context->b = 2;
+	context->option1 = 1;
+	context->option2 = 2;
 
 	instance->context = context;
 
 	return 0;
 }
 
-static void handler(module_instance_t *instance)
+static void handler(instance_t *instance, void *data, size_t offset, size_t size)
 {
 	/* some work */
 	(void)instance;
 }
 
-static void clean(module_instance_t *instance)
+static void clean(instance_t *instance)
 {
 	free(instance->context);
 }
 
-static void handler2(module_instance_t *instance)
+static void handler2(instance_t *instance, void *data, size_t offset, size_t size)
 {
 	/* some work */
 	(void)instance;

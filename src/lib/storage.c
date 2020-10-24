@@ -21,17 +21,17 @@ static const char *get_module_name(char *contname);
 void init_storage(void)
 {
 	init_named_autoarray(&container_array, container_t, name);
-	init_named_autoarray(&instance_array, module_instance_t, name);
+	init_named_autoarray(&instance_array, instance_t, name);
 	init_autoarray(&thread_array, thread_t);
 }
 
 void free_storage(void)
 {
 	container_t *container;
-	module_instance_t *instance;
+	instance_t *instance;
 
 	autoarray_foreach(&instance_array, instance)
-		free_module_instance(instance);
+		free_instance(instance);
 	free_autoarray(&instance_array);
 
 	autoarray_foreach(&container_array, container)
@@ -41,9 +41,9 @@ void free_storage(void)
 	free_autoarray(&thread_array);
 }
 
-module_instance_t *get_module_instance(const char *name)
+instance_t *get_instance(const char *name)
 {
-	module_instance_t *instance;
+	instance_t *instance;
 
 	instance = get_autoarray_item_by_name(&instance_array, name);
 	if (instance)
@@ -53,8 +53,8 @@ module_instance_t *get_module_instance(const char *name)
 	if (!instance)
 		return NULL;
 
-	if (init_module_instance(instance, name) != 0) {
-		free_module_instance(instance);
+	if (init_instance(instance, name) != 0) {
+		free_instance(instance);
 		pop_autoarray_item(&instance_array);
 		return NULL;
 	}
@@ -62,7 +62,7 @@ module_instance_t *get_module_instance(const char *name)
 	return instance;
 }
 
-int set_instance_module(module_instance_t *instance, const char *module_name)
+int set_instance_module(instance_t *instance, const char *module_name)
 {
 	char *contname;
 	const char *modname;
