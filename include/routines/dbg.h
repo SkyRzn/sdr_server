@@ -61,7 +61,7 @@ extern int _dbg_errno;
 	dbg_assert(_pointer != NULL, _retval, "Pointer '" #_pointer "' is NULL\n")
 
 #define dbg_assert_not_error(_value, _retval) \
-	dbg_assert(_value == 0, _retval, "Error %d (" #_value ")\n", _retval)
+	dbg_assert(_value == 0, _retval, "Error %d (" #_value ")\n", _value)
 
 #define dbg_assert_not_error_int(_value) \
 	do { \
