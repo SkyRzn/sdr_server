@@ -18,7 +18,7 @@ option_t option[] = {
 };
 
 
-static int init(instance_t *instance)
+static int skeleton_init(instance_t *instance)
 {
 	context_t *context;
 
@@ -34,30 +34,25 @@ static int init(instance_t *instance)
 	return 0;
 }
 
-static void handler(instance_t *instance, void *data, size_t offset, size_t size)
+static void skeleton_handler(instance_t *instance, void *data, size_t offset, size_t size)
 {
 	/* some work */
 	(void)instance;
 }
 
-static void clean(instance_t *instance)
+static void skeleton_free(instance_t *instance)
 {
 	free(instance->context);
 }
 
-static void handler2(instance_t *instance, void *data, size_t offset, size_t size)
+static void skeleton_handler2(instance_t *instance, void *data, size_t offset, size_t size)
 {
 	/* some work */
 	(void)instance;
 }
 
 
-static const char *settings[] = {
-	"field1",
-	"field2"
-};
-
-#define description "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " \
+#define skeleton_description "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " \
 	"Integer enim nunc, vehicula vel molestie sodales, eleifend vel metus. " \
 	"Aenean blandit tincidunt velit id condimentum. Sed quis ipsum turpis. " \
 	"Maecenas nec erat vel nunc hendrerit elementum blandit ut magna. " \
@@ -66,11 +61,13 @@ static const char *settings[] = {
 	"Maecenas sit amet lectus justo."
 
 
-ADD_MODULE(skeleton,       // note: without quotes!
-		   description,
-		   init,
-		   handler,
-		   clean,
-		   settings);
+MODULE(skeleton) = {       // note: without quotes!
+	.description = skeleton_description,
+	.init = skeleton_init,
+	.handler = skeleton_handler,
+	.free = skeleton_free
+};
 
-ADD_MODULE(skeleton2, NULL, NULL, handler2, NULL, NULL);
+MODULE(skeleton2) = {
+	.handler = skeleton_handler2
+};

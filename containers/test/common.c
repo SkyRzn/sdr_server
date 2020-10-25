@@ -50,23 +50,14 @@ static void destination_handler(instance_t *instance, void *data_, size_t offset
 }
 
 
-ADD_MODULE(source,
-		   NULL,
-		   NULL,
-		   source_handler,
-		   NULL,
-		   NULL);
+MODULE(source) = {
+	.handler = source_handler
+};
 
-ADD_MODULE(doubling,
-		   NULL,
-		   NULL,
-		   doubling_handler,
-		   NULL,
-		   NULL);
+MODULE(doubling) = {
+	.handler = doubling_handler
+};
 
-ADD_MODULE(destination,
-		   NULL,
-		   NULL,
-		   destination_handler,
-		   NULL,
-		   NULL);
+MODULE(destination) = {
+	.handler = destination_handler
+};

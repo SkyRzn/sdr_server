@@ -11,13 +11,13 @@ typedef struct instance instance_t;
 
 typedef int (module_init_t)(instance_t *);
 typedef void (module_handler_t)(instance_t *, void *data, size_t offset, size_t size);
-typedef void (module_clean_t)(instance_t *);
+typedef void (module_free_t)(instance_t *);
 
 typedef struct module {
 	const char *description;
 	module_init_t *init;
 	module_handler_t *handler;
-	module_clean_t *clean;
+	module_free_t *free;
 	const char **settings_fileds;
 } module_t;
 
@@ -40,8 +40,7 @@ struct instance {
 #define STR(x) STR_(x)
 #define MODULE_PREFIX_STRING STR(MODULE_PREFIX)
 
-#define ADD_MODULE(name_, description_, init_, handler_, clean_, settings_fileds_) \
-	module_t MODULE_VARIABLE(name_) = {description_, init_, handler_, clean_, settings_fileds_}
+#define MODULE(name_) module_t MODULE_VARIABLE(name_)
 
 
 extern module_t *get_module(void *dlhandle, const char *name);
