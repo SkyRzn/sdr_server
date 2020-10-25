@@ -26,11 +26,11 @@ int init_factory(const char *config_path)
 		dbg_assert_not_null(instance, -ENOMEM);
 
 		if (iterator->module_name)
-			dbg_assert_not_error_int(set_instance_module(instance, iterator->module_name));
+			dbg_assert_not_error_int(set_instance_module_name(instance, iterator->module_name));
 
 		if (prev_instance) {
-			instance->input = prev_instance;
-			prev_instance->output = instance;
+			instance->module->set_input(instance, prev_instance);
+			prev_instance->module->set_output(prev_instance, instance);
 		}
 
 		prev_instance = (iterator->terminator == CONNECTION_TERMINATOR) ? instance : NULL;

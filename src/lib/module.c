@@ -9,6 +9,10 @@
 #include <errno.h>
 
 
+static void set_input(instance_t *instance, instance_t *input);
+static void set_output(instance_t *instance, instance_t *output);
+
+
 module_t *get_module(void *dlhandle, const char *name)
 {
 	module_t *module;
@@ -46,6 +50,20 @@ void free_instance(instance_t *instance)
 	free(instance->name);
 }
 
+void set_instance_module(instance_t *instance, module_t *module)
+{
+	dbg_assert_not_null(instance, );
+	dbg_assert_not_null(module, );
+
+	instance->module = module;
+
+	if (module->set_input == NULL)
+		module->set_input = set_input;
+
+	if (module->set_output == NULL)
+		module->set_output = set_output;
+}
+
 void set_output_instance_data(instance_t *instance, void *data, size_t offset, size_t size)
 {
 	instance->output->module->handler(instance->output, data, offset, size);
@@ -56,6 +74,30 @@ void begin_instance_loop(instance_t *instance)
 	while (1) { // TODO replace by stop condition
 		instance->module->handler(instance, NULL, 0, 0);
 	}
+}
+
+static void set_input(instance_t *instance, instance_t *input)
+{
+	dbg_assert_not_null(instance, );
+	dbg_assert_not_null(input, );
+
+	dbg_assert(instance->input == NULL, ,
+			"%s instance has already have input instance %s\n",
+			instance->name, instance->input->name);
+
+	instance->input = input;
+}
+
+static void set_output(instance_t *instance, instance_t *output)
+{
+	dbg_assert_not_null(instance, );
+	dbg_assert_not_null(output, );
+
+	dbg_assert(instance->output == NULL, ,
+			"%s instance has already have output instance %s\n",
+			instance->name, instance->output->name);
+
+	instance->output = output;
 }
 
 /*

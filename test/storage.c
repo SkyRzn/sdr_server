@@ -18,19 +18,19 @@ CHEAT_TEST(storage,
 	instance = get_instance("test");
 	cheat_assert(instance != NULL);
 
-	cheat_assert(set_instance_module(instance, NULL) == -EINVAL);
-	cheat_assert(set_instance_module(NULL, "name") == -EINVAL);
+	cheat_assert(set_instance_module_name(instance, NULL) == -EINVAL);
+	cheat_assert(set_instance_module_name(NULL, "name") == -EINVAL);
 
-	res = set_instance_module(instance, "nonexistent_container:module");
+	res = set_instance_module_name(instance, "nonexistent_container:module");
 	cheat_assert(res != 0);
 
-	res = set_instance_module(instance, "common_test:source");
+	res = set_instance_module_name(instance, "common_test:source");
 	cheat_assert(res == 0);
 
-	res = set_instance_module(instance, "common_test:doubling");
+	res = set_instance_module_name(instance, "common_test:doubling");
 	cheat_assert(res == 0);
 
-	res = set_instance_module(instance, "common_test:nonexistent_module");
+	res = set_instance_module_name(instance, "common_test:nonexistent_module");
 	cheat_assert(res != 0);
 
 	free_storage();

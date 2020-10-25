@@ -62,11 +62,12 @@ instance_t *get_instance(const char *name)
 	return instance;
 }
 
-int set_instance_module(instance_t *instance, const char *module_name)
+int set_instance_module_name(instance_t *instance, const char *module_name)
 {
 	char *contname;
 	const char *modname;
 	container_t *container;
+	module_t *module;
 
 	dbg_assert_not_null(instance, -EINVAL);
 	dbg_assert_not_null(module_name, -EINVAL);
@@ -79,9 +80,11 @@ int set_instance_module(instance_t *instance, const char *module_name)
 	container = get_container(contname);
 	dbg_assert(container != NULL, -ENOENT, "Can't get container '%s'\n", contname);
 
-	instance->module = get_module(container->dlhandle, modname);
-	dbg_assert(instance->module != NULL, -ENOENT,
+	module = get_module(container->dlhandle, modname);
+	dbg_assert(module != NULL, -ENOENT,
 			   "Can't get module '%s' from container '%s'\n", modname, contname);
+
+	set_instance_module(instance, module);
 
 	free(contname);
 
