@@ -28,6 +28,9 @@ int init_factory(const char *config_path)
 		if (iterator->module_name)
 			dbg_assert_not_error_int(set_instance_module_name(instance, iterator->module_name));
 
+		if (iterator->options)
+			instance->options_string = iterator->options;
+
 		if (prev_instance) {
 			instance->module->set_input(instance, prev_instance);
 			prev_instance->module->set_output(prev_instance, instance);
@@ -37,11 +40,24 @@ int init_factory(const char *config_path)
 	}
 
 	module_instance_foreach(instance) {
-		printf("%s -> %s -> %s\n",
-			   (instance->input) ? instance->input->name : "NULL",
-			   instance->name,
-			   (instance->output) ? instance->output->name : "NULL"
-  			);
+		if (instance->module->init)
+			instance->module->init(instance);
+
+		instance_t *neighbour;
+		autoarray_foreach(&instance->input, neighbour)
+			printf("[%s] -> ", neighbour->name);
+
+		printf("%s", instance->name);
+
+		autoarray_foreach(&instance->output, neighbour)
+			printf(" -> [%s]", neighbour->name);
+
+		printf("\n");
+	}
+
+	module_instance_foreach(instance) {
+		if (instance->module->free)
+			instance->module->free(instance);
 	}
 
 	free_storage();

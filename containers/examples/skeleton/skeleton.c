@@ -11,7 +11,7 @@ typedef struct {
 	int option2;
 } context_t;
 
-option_t option[] = {
+static option_t skeleton_options[] = {
 	make_option("option1", OPTION_TYPE_INT, context_t, option1),
 	make_option("option2", OPTION_TYPE_INT, context_t, option2),
 	end_option()
@@ -65,7 +65,8 @@ MODULE(skeleton) = {       // note: without quotes!
 	.description = skeleton_description,
 	.init = skeleton_init,
 	.handler = skeleton_handler,
-	.free = skeleton_free
+	.free = skeleton_free,
+	.options = skeleton_options
 };
 
 MODULE(skeleton2) = {

@@ -56,10 +56,6 @@ config_iterator_t *first_config_iterator(config_t *config)
 	config_iterator_t *iterator = &config->iterator;
 
 	iterator->pointer = config->buffer;
-	iterator->name = NULL;
-	iterator->module_name = NULL;
-	iterator->settings = NULL;
-	iterator->terminator = SEMICOLON_TERMINATOR;
 
 	push_config_iterator(config);
 
@@ -77,7 +73,7 @@ void push_config_iterator(config_t *config)
 
 	iterator->name = NULL;
 	iterator->module_name = NULL;
-	iterator->settings = NULL;
+	iterator->options = NULL;
 
 	iterator->terminator = find_terminator(iterator->pointer, &next_pointer);
 
@@ -113,7 +109,7 @@ static int parse_current_element(config_t *config, config_iterator_t *iterator)
 			iterator->module_name = beg + 1;
 		} else if (beg[0] == '(' || *(end - 1) == ')') { // settings
 			*(end - 1) = '\0';
-			iterator->settings = beg + 1;
+			iterator->options = beg + 1;
 		} else { // instance name
 			*end = '\0';
 			iterator->name = beg;
@@ -229,27 +225,3 @@ static void clean_config(char *buffer)
 	}
 	*dst = '\0';
 }
-
-// static settings_iterator_t *next_settings_iterator(void)
-// {
-// 	if (!settings_buf || !settings_current)
-// 		return NULL;
-//
-// 	settings_iterator.key = settings_current;
-//
-// 	settings_current = strchr(settings_current, '=');
-// 	if (!settings_current)
-// 		dbg_exit("Incorrect settings field: '%s'\n", settings_buf);
-//
-// 	*settings_current = '\0';
-//
-// 	settings_iterator.value = ++settings_current;
-//
-// 	settings_current = strchr(settings_iterator.value, ',');
-// 	if (settings_current) {
-// 		*settings_current = '\0';
-// 		settings_current++;
-// 	}
-//
-// 	return &settings_iterator;
-// }

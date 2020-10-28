@@ -19,7 +19,7 @@ typedef struct {
 	char *pointer;
 	char *name;
 	char *module_name;
-	char *settings;
+	char *options;
 	terminator_t terminator;
 } config_iterator_t;
 
@@ -34,10 +34,6 @@ typedef struct {
 	_iterator = first_config_iterator(_config); \
 	(_iterator)->pointer != NULL; \
 	push_config_iterator(_config))
-#define settings_foreach(_settings, _iterator) for ( \
-	_iterator = first_settings_iterator(_settings); \
-	_iterator != NULL; \
-	_iterator = (_iterator)->next())
 
 
 extern int load_config(config_t *config, const char *path);
