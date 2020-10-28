@@ -2,6 +2,9 @@
 #define _SDR_SERVER_MODULE_H_
 
 
+#include <option.h>
+#include <routines/autoarray.h>
+
 #include <semaphore.h>
 
 
@@ -12,7 +15,7 @@ typedef struct instance instance_t;
 typedef int (module_init_t)(instance_t *);
 typedef void (module_handler_t)(instance_t *, void *data, size_t offset, size_t size);
 typedef void (module_free_t)(instance_t *);
-typedef void (module_set_neighbour_t)(instance_t *, instance_t *);
+typedef int (module_set_neighbour_t)(instance_t *, instance_t *);
 
 typedef struct module {
 	const char *description;
@@ -21,16 +24,17 @@ typedef struct module {
 	module_free_t *free;
 	module_set_neighbour_t *set_input;
 	module_set_neighbour_t *set_output;
-	const char **settings_fileds;
+	option_t *options;
 } module_t;
 
 struct instance {
 	char *name;
 	module_t *module;
 	void *context;
+	char *options_string;
 
-	instance_t *input;
-	instance_t *output;
+	autoarray_t input;
+	autoarray_t output;
 };
 
 

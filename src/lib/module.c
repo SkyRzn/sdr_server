@@ -9,8 +9,8 @@
 #include <errno.h>
 
 
-static void set_input(instance_t *instance, instance_t *input);
-static void set_output(instance_t *instance, instance_t *output);
+static int set_input(instance_t *instance, instance_t *input);
+static int set_output(instance_t *instance, instance_t *output);
 
 
 module_t *get_module(void *dlhandle, const char *name)
@@ -39,8 +39,9 @@ int init_instance(instance_t *instance, const char *name)
 
 	instance->module = NULL;
 	instance->context = NULL;
-	instance->input = NULL;
-	instance->output = NULL;
+
+	init_autoarray(&instance->input, instance_t);
+	init_autoarray(&instance->output, instance_t);
 
 	return 0;
 }
@@ -66,7 +67,10 @@ void set_instance_module(instance_t *instance, module_t *module)
 
 void set_output_instance_data(instance_t *instance, void *data, size_t offset, size_t size)
 {
-	instance->output->module->handler(instance->output, data, offset, size);
+	instance_t *output;
+
+	autoarray_foreach(&instance->output, output)
+		output->module->handler(output, data, offset, size);
 }
 
 void begin_instance_loop(instance_t *instance)
@@ -76,28 +80,20 @@ void begin_instance_loop(instance_t *instance)
 	}
 }
 
-static void set_input(instance_t *instance, instance_t *input)
+static int set_input(instance_t *instance, instance_t *input)
 {
-	dbg_assert_not_null(instance, );
-	dbg_assert_not_null(input, );
+	dbg_assert_not_null(instance, -EINVAL);
+	dbg_assert_not_null(input, -EINVAL);
 
-	dbg_assert(instance->input == NULL, ,
-			"%s instance has already have input instance %s\n",
-			instance->name, instance->input->name);
-
-	instance->input = input;
+	return add_autoarray_item(&instance->input, input);
 }
 
-static void set_output(instance_t *instance, instance_t *output)
+static int set_output(instance_t *instance, instance_t *output)
 {
-	dbg_assert_not_null(instance, );
-	dbg_assert_not_null(output, );
+	dbg_assert_not_null(instance, -EINVAL);
+	dbg_assert_not_null(output, -EINVAL);
 
-	dbg_assert(instance->output == NULL, ,
-			"%s instance has already have output instance %s\n",
-			instance->name, instance->output->name);
-
-	instance->output = output;
+	return add_autoarray_item(&instance->output, output);
 }
 
 /*
