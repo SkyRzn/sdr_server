@@ -7,8 +7,8 @@
 
 CHEAT_TEST(routines_autoarray,
 	typedef struct {
-		char *name;
 		int val;
+		char *name;
 	} test_t;
 
 	char buf[16];
@@ -56,6 +56,8 @@ CHEAT_TEST(routines_autoarray,
 	cheat_assert(test == NULL);
 
 	free_autoarray(&test_array);
+
+	init_autoarray(&test_array, test_t);
 
 	for (i = 0; i < 100; i++) {
 		snprintf(buf, sizeof(buf), "name%d", i);

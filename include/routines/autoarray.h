@@ -38,9 +38,10 @@ typedef struct {
 
 extern int _init_autoarray(autoarray_t *array, size_t item_size, ssize_t name_offset);
 extern void free_autoarray(autoarray_t *array);
-extern void *new_autoarray_item(autoarray_t *autoarray);
-extern void *get_autoarray_item_by_index(autoarray_t *autoarray, int index);
-extern void *get_autoarray_item_by_name(autoarray_t *autoarray, const char *name);
+extern void *new_autoarray_item(autoarray_t *array);
+extern int add_autoarray_item(autoarray_t *array, void *item);
+extern void *get_autoarray_item_by_index(autoarray_t *array, int index);
+extern void *get_autoarray_item_by_name(autoarray_t *array, const char *name);
 extern void *pop_autoarray_item(autoarray_t *array);
 extern void *init_autoarray_foreach(autoarray_t *array);
 extern void *push_autoarray_foreach(autoarray_t *array);

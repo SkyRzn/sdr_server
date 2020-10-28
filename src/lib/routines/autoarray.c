@@ -10,6 +10,9 @@
 #define POINTER_SIZE sizeof(void *)
 
 
+static void **add_pointer(autoarray_t *array);
+
+
 int _init_autoarray(autoarray_t *array, size_t item_size, ssize_t name_offset)
 {
 	dbg_assert_not_null(array, -EINVAL);
@@ -50,23 +53,31 @@ void *new_autoarray_item(autoarray_t *array)
 	void **pointer;
 
 	dbg_assert_not_null(array, NULL);
+	dbg_assert(array->item_size != 0, NULL, "New autoarray item with zero size\n");
 
-	if ((array->count + 1) * POINTER_SIZE > array->size) {
-		array->size *= 2;
-		array->pointer = realloc(array->pointer, array->size);
-		if (!array->pointer)
-			dbg_mem_return(NULL);
-	}
+	pointer = add_pointer(array);
+	dbg_assert_not_null(pointer, NULL);
 
-	pointer = array->pointer + array->count;
-	array->count++;
+	*pointer = malloc(array->item_size);
+	dbg_assert_not_null(*pointer, NULL);
 
-	if (array->item_size != 0) {
-		*pointer = malloc(array->item_size);
-		return *pointer;
-	}
+	return *pointer;
+}
 
-	return pointer;
+int add_autoarray_item(autoarray_t *array, void *item)
+{
+	void **pointer;
+
+	dbg_assert_not_null(array, -EINVAL);
+	dbg_assert_not_null(item, -EINVAL);
+	dbg_assert(array->item_size == 0, -EINVAL, "Add autoarray item with not zero size\n");
+
+	pointer = add_pointer(array);
+	dbg_assert_not_null(pointer, -EINVAL);
+
+	*pointer = item;
+
+	return 0;
 }
 
 void *get_autoarray_item_by_index(autoarray_t *array, int index)
@@ -129,4 +140,22 @@ void *push_autoarray_foreach(autoarray_t *array)
 		return NULL;
 
 	return *(array->pointer + array->index);
+}
+
+static void **add_pointer(autoarray_t *array)
+{
+	void **pointer;
+
+	dbg_assert_not_null(array, NULL);
+
+	if ((array->count + 1) * POINTER_SIZE > array->size) {
+		array->size *= 2;
+		array->pointer = realloc(array->pointer, array->size);
+		dbg_assert_not_null(array->pointer, NULL);
+	}
+
+	pointer = array->pointer + array->count;
+	array->count++;
+
+	return pointer;
 }
